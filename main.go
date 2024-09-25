@@ -12,7 +12,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"unsafe"
 
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -26,7 +29,7 @@ func main() {
 		var password string
 		fmt.Print("请输入密码:")
 		fmt.Scanln(&password)
-		if password == "123123" {
+		if password == "387590770" {
 			fmt.Println("密码正确")
 			break
 		} else {
@@ -46,7 +49,56 @@ func main() {
 	defer key.Close()
 
 	if games_src == "" {
-		fmt.Print("无法获取游戏路径请手动输入:")
+		snapshot, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
+		if err == nil {
+			var entry windows.ProcessEntry32
+			entry.Size = uint32(unsafe.Sizeof(entry))
+			if err = windows.Process32First(snapshot, &entry); err == nil {
+				for {
+					processName := syscall.UTF16ToString(entry.ExeFile[:])
+					if processName == "DSPGAME.exe" {
+						fmt.Printf("Found DSPGAME.exe with PID: %d\n", entry.ProcessID)
+						pid_path, err := getProcessPath(entry.ProcessID)
+						if err == nil {
+							games_src = strings.TrimSuffix(pid_path, `DSPGAME.exe`)
+
+							// 获取进程句柄
+							handle, err := windows.OpenProcess(windows.PROCESS_TERMINATE, false, entry.ProcessID)
+							if err != nil {
+								fmt.Println("无法打开进程句柄:", err)
+								continue
+							}
+							// 尝试终止进程
+							err = windows.TerminateProcess(handle, 1)
+							if err != nil {
+								fmt.Println("无法终止进程:", err)
+							} else {
+								fmt.Println("进程已终止")
+							}
+							windows.CloseHandle(handle)
+
+							break
+						}
+					}
+
+					if err = windows.Process32Next(snapshot, &entry); err != nil {
+						if err == syscall.ERROR_NO_MORE_FILES {
+							break
+						}
+						fmt.Println("Error getting next process:", err)
+						return
+					}
+
+				}
+			}
+
+		}
+		defer windows.CloseHandle(snapshot)
+
+	}
+
+	if games_src == "" {
+		fmt.Print("无法获取游戏路径请关闭此软件并且打开游戏在打开软件会自动安装或者手动输入:")
 		fmt.Scanln(&games_src)
 	}
 
@@ -186,4 +238,24 @@ func main() {
 	fmt.Println("请按任意键关闭...")
 	bufio.NewReader(os.Stdin).ReadBytes('\n')
 
+}
+func getProcessPath(pid uint32) (string, error) {
+	handle, err := windows.OpenProcess(windows.PROCESS_QUERY_INFORMATION|windows.PROCESS_VM_READ, false, pid)
+	if err != nil {
+		return "", err
+	}
+	defer windows.CloseHandle(handle)
+
+	var n uint32 = 1024
+	for {
+		buf := make([]uint16, n)
+		err = windows.QueryFullProcessImageName(handle, 0, &buf[0], &n)
+		if err == nil {
+			return syscall.UTF16ToString(buf[:n]), nil
+		}
+		if err.(syscall.Errno) != syscall.ERROR_INSUFFICIENT_BUFFER {
+			return "", err
+		}
+		n *= 2
+	}
 }

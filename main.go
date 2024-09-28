@@ -10,9 +10,11 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"syscall"
+	"time"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -76,7 +78,7 @@ func main() {
 								fmt.Println("进程已终止")
 							}
 							windows.CloseHandle(handle)
-
+							time.NewTicker(5 * time.Second)
 							break
 						}
 					}
@@ -98,7 +100,8 @@ func main() {
 	}
 
 	if games_src == "" {
-		fmt.Print("无法获取游戏路径请关闭此软件并且打开游戏在打开软件会自动安装或者手动输入:")
+		fmt.Println("无法获取游戏路径请关闭此软件并且打开游戏在打开软件会自动安装")
+		fmt.Print("或者手动输入:")
 		fmt.Scanln(&games_src)
 	}
 
@@ -109,12 +112,24 @@ func main() {
 			fmt.Print("请重新输入游戏路径:")
 			fmt.Scanln(&games_src)
 		} else {
-			fmt.Print("\033[2J") // 清空整个屏幕
-			fmt.Print("\033[H")  // 将光标移动到左上角
+			// 将 games_src 转换为短路径
+			srcPtr, err := windows.UTF16PtrFromString(games_src)
+			if err == nil {
+				shortPath := make([]uint16, windows.MAX_PATH)
+				_, err = syscall.GetShortPathName(srcPtr, &shortPath[0], uint32(len(shortPath)))
+				if err == nil {
+					games_src = windows.UTF16ToString(shortPath)
+				}
+
+			}
+
+			clearConsole()
+			// fmt.Print("\033[H\033[2J")
 			fmt.Println("游戏目录:", games_src)
 			break
 		}
 	}
+
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://dow.feishunet.com/Addons/Dyson_Sphere_Program/MOD/Version.txt", nil)
 	if err != nil {
@@ -139,6 +154,7 @@ func main() {
 	fmt.Println("最新的mod版本号:", latest_version)
 
 	var mod_version string
+	var mod_dirs string
 	pluginsPath := filepath.Join(games_src, "BepInEx", "plugins")
 
 	// 枚举 pluginsPath 下的所有子目录
@@ -164,8 +180,8 @@ func main() {
 
 				if manifest.Name == "NebulaMultiplayerMod" {
 					mod_version = manifest.VersionNumber
-					dirPath := filepath.Join(pluginsPath, dir.Name())
-					os.RemoveAll(dirPath)
+					mod_dirs = filepath.Join(pluginsPath, dir.Name())
+
 				}
 			}
 		}
@@ -183,6 +199,8 @@ func main() {
 			fmt.Println("mod不是最新版本,开始安装mod")
 		}
 	}
+
+	os.RemoveAll(mod_dirs)
 	// 从 embed.FS 读取 ZIP 文件
 	zipData, err := embeddedZip.ReadFile("Dyson_Sphere_Program.zip")
 	if err != nil {
@@ -258,4 +276,10 @@ func getProcessPath(pid uint32) (string, error) {
 		}
 		n *= 2
 	}
+}
+
+func clearConsole() {
+	cmd := exec.Command("cmd", "/c", "cls")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }

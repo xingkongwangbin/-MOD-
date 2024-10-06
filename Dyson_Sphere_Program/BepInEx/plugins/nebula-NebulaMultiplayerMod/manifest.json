@@ -1,0 +1,12 @@
+{
+  "name": "NebulaMultiplayerMod",
+  "description": "With this mod you will be able to play with your friends in the same game! Now supports combat mode in game version 0.10.30",
+  "version_number": "0.9.11",
+  "dependencies": [
+    "xiaoye97-BepInEx-5.4.17",
+    "nebula-NebulaMultiplayerModApi-2.0.0",
+    "PhantomGamers-IlLine-1.0.0",
+    "starfi5h-BulletTime-1.5.1"
+  ],
+  "website_url": "https://github.com/hubastard/nebula"
+}

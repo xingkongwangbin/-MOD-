@@ -1,0 +1,13 @@
+{
+  "name": "TheyComeFromVoid",
+  "description": "Add relic features, player level system, and optional void invasion features to enrich the gameplay. 为戴森球计划增加一些遗物系统、等级系统和可选的虚空入侵内容来丰富玩法。",
+  "version_number": "3.2.3",
+  "dependencies": [
+    "xiaoye97-BepInEx-5.4.17",
+    "xiaoye97-LDBTool-2.0.6",
+    "CommonAPI-DSPModSave-1.1.4",
+    "CommonAPI-CommonAPI-1.6.3",
+    "jinxOAO-MoreMegaStructure-1.5.5"
+  ],
+  "website_url": "https://github.com/jinxOAO/DSP_Battle"
+}

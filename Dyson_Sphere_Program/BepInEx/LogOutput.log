@@ -1,4 +1,4 @@
-[Message:   BepInEx] BepInEx 5.4.17.0 - DSPGAME (2024/9/22 23:47:14)
+[Message:   BepInEx] BepInEx 5.4.17.0 - DSPGAME (2022/9/30 23:42:57)
 [Info   :   BepInEx] Running under Unity v2018.4.12.5889476
 [Info   :   BepInEx] CLR runtime version: 4.0.30319.17020
 [Info   :   BepInEx] Supports SRE: False
@@ -13,19 +13,33 @@
 [Message:   BepInEx] Preloader finished
 [Message:   BepInEx] Chainloader ready
 [Message:   BepInEx] Chainloader started
-[Info   :   BepInEx] 10 plugins to load
+[Info   :   BepInEx] 15 plugins to load
 [Warning:   BepInEx] Plugin [DSP Common API 1.6.5.0] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
 [Warning:   BepInEx] Plugin [Common API Nebula Compatibility 1.6.5.0] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
 [Warning:   BepInEx] Plugin [DSP Mod Save 1.2.1] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
 [Warning:   BepInEx] Plugin [NebulaMultiplayerMod 0.9.11.2] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
 [Warning:   BepInEx] Plugin [NebulaMultiplayerModApi 2.0.0.242] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
 [Warning:   BepInEx] Plugin [LDBTool 3.0.1] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
-[Info   :   BepInEx] Loading [IlLine 1.0.0]
+[Info   :   BepInEx] Loading [DSP Mod Save 1.2.1]
 [Info   :   BepInEx] Loading [LDBTool 3.0.1]
 [Info   :   LDBTool] LDBTool is loaded successfully!
-[Info   :   BepInEx] Loading [DSP Mod Save 1.2.1]
 [Info   :   BepInEx] Loading [DSP Common API 1.6.5.0]
+[Info   :DSP Common API] Enabling CommonAPI Submodule: LocalizationModule
+[Info   :DSP Common API] Enabling CommonAPI Submodule: PickerExtensionsSystem
+[Info   :DSP Common API] Enabling CommonAPI Submodule: ProtoRegistry
+[Info   :DSP Common API] Enabling CommonAPI Submodule: TabSystem
 [Info   :DSP Common API] Common API is initialized!
+[Info   :   BepInEx] Loading [MoreMegaStructure 1.5.8]
+[Info   :DSP Common API] Mod Gnimaerd.DSP.plugin.MoreMegaStructure loading phase is over.
+[Info   :   BepInEx] Loading [DSP_Battle 3.1.3]
+[Info   :DSP Common API] Mod com.ckcz123.DSP_Battle loading phase is over.
+[Warning:DSP Common API] Trying to override translation 'relicTipTitle2-12' via RegisterTranslation, this is not supported. Use EditTranslation
+[Warning:DSP Common API] Trying to override translation 'relicTipTitle2-12' via RegisterTranslation, this is not supported. Use EditTranslation
+[Warning:DSP Common API] Trying to override translation 'relicTipTitle2-12' via RegisterTranslation, this is not supported. Use EditTranslation
+[Warning:DSP Common API] Trying to override translation 'relicTipText2-12' via RegisterTranslation, this is not supported. Use EditTranslation
+[Warning:DSP Common API] Trying to override translation 'relicTipText2-12' via RegisterTranslation, this is not supported. Use EditTranslation
+[Warning:DSP Common API] Trying to override translation 'relicTipText2-12' via RegisterTranslation, this is not supported. Use EditTranslation
+[Info   :   BepInEx] Loading [IlLine 1.0.0]
 [Info   :   BepInEx] Loading [NebulaMultiplayerMod 0.9.11.2]
 [Info   :NebulaMultiplayerMod] Patching Dyson Sphere Program...
 [Info   :NebulaMultiplayerMod] Applying patches from NebulaMultiplayerMod 0.9.11.0 made for game version 0.10.30.23430
@@ -37,18 +51,15 @@
   at NebulaWorld.SocialIntegration.DiscordManager.Setup (Discord.ActivityManager+ActivityJoinHandler activityJoinHandler) [0x00018] in <ec78c2d3958a4f23906f215415e474fa>:IL_0018 
 [Info   :   BepInEx] Loading [NebulaMultiplayerModApi 2.0.0.242]
 [Info   :NebulaMultiplayerModApi] Nebula API is ready!
-[Info   :   BepInEx] Loading [BulletTime 1.5.1]
+[Info   :   BepInEx] Loading [BulletTime 1.5.2]
 [Info   :   BepInEx] Loading [Common API Nebula Compatibility 1.6.5.0]
-[Info   :   BepInEx] Loading [NebulaCompatibilityAssist 0.4.16]
+[Error  :   BepInEx] Could not load [MMSBottleneckCompat 1.0] because it has missing dependencies: Bottleneck
+[Error  :   BepInEx] Could not load [MMSGCPatch 1.0] because it has missing dependencies: org.LoShin.GenesisBook
+[Info   :   BepInEx] Loading [NebulaCompatibilityAssist 0.4.20]
+[Info   :   BepInEx] Loading [DeliverySlotsTweaks 1.5.8]
 [Info   :   BepInEx] Loading [SF_ChinesePatch 1.3.2]
 [Message:   BepInEx] Chainloader startup complete
+[Info   :DSP Common API] Editing localizations!
 [Info   :SF_ChinesePatch] Add 188 strings to ZHCN
 [Info   :DSP Mod Save] DSP Mod Save is initialized!
 [Info   :Common API Nebula Compatibility] Common API Nebula Compatibility ready!
-[Info   :DSP Mod Save] _autosave_tmp: Game mod save not exist
-[Info   :   LDBTool] Pre Loading...
-[Info   :   LDBTool] Post Loading...
-[Info   :   LDBTool] Done.
-[Warning:DSP Common API] This version of CommonAPI was built for build id "0.10.28.21308", you are running "0.10.30.23430".
-[Warning:DSP Common API] Should any problems arise, please check for a new version before reporting issues.
-[Info   :NebulaCompatibilityAssist] Nebula extra features - OK

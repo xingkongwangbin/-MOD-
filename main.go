@@ -40,7 +40,7 @@ func main() {
 	}
 
 	var games_src string
-
+	// 访问 windows 注册表，获取 steam 安装路径
 	key, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1366540`, registry.QUERY_VALUE)
 	if err == nil {
 		installLocation, _, err := key.GetStringValue("InstallLocation")
@@ -50,52 +50,65 @@ func main() {
 	}
 	defer key.Close()
 
+	// 未找到 steam 安装路径，从进程中抓取游戏进程获取安装路径
 	if games_src == "" {
-		snapshot, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
-		if err == nil {
-			var entry windows.ProcessEntry32
-			entry.Size = uint32(unsafe.Sizeof(entry))
-			if err = windows.Process32First(snapshot, &entry); err == nil {
-				for {
-					processName := syscall.UTF16ToString(entry.ExeFile[:])
-					if processName == "DSPGAME.exe" {
-						fmt.Printf("Found DSPGAME.exe with PID: %d\n", entry.ProcessID)
-						pid_path, err := getProcessPath(entry.ProcessID)
-						if err == nil {
-							games_src = strings.TrimSuffix(pid_path, `DSPGAME.exe`)
+		loop := true
+		for loop {
+			snapshot, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
 
-							// 获取进程句柄
-							handle, err := windows.OpenProcess(windows.PROCESS_TERMINATE, false, entry.ProcessID)
-							if err != nil {
-								fmt.Println("无法打开进程句柄:", err)
-								continue
+			if err == nil {
+
+				var entry windows.ProcessEntry32
+
+				// 获取进程
+				entry.Size = uint32(unsafe.Sizeof(entry))
+				if err = windows.Process32First(snapshot, &entry); err == nil {
+					for {
+						processName := syscall.UTF16ToString(entry.ExeFile[:])
+
+						if processName == "DSPGAME.exe" {
+							fmt.Printf("Found DSPGAME.exe with PID: %d\n", entry.ProcessID)
+							pid_path, err := getProcessPath(entry.ProcessID)
+							if err == nil {
+								games_src = strings.TrimSuffix(pid_path, `DSPGAME.exe`)
+
+								// 获取进程句柄
+								handle, err := windows.OpenProcess(windows.PROCESS_TERMINATE, false, entry.ProcessID)
+								if err != nil {
+									fmt.Println("无法打开进程句柄:", err)
+									continue
+								}
+								// 尝试终止进程
+								err = windows.TerminateProcess(handle, 1)
+								if err != nil {
+									fmt.Println("无法终止进程:", err)
+								} else {
+									fmt.Println("进程已终止")
+								}
+								loop = false
+								windows.CloseHandle(handle)
+								time.NewTicker(5 * time.Second)
+								break
 							}
-							// 尝试终止进程
-							err = windows.TerminateProcess(handle, 1)
-							if err != nil {
-								fmt.Println("无法终止进程:", err)
-							} else {
-								fmt.Println("进程已终止")
+						}
+
+						if err = windows.Process32Next(snapshot, &entry); err != nil {
+							if err == syscall.ERROR_NO_MORE_FILES {
+								fmt.Println("未找到进程,请打开游戏;")
+								fmt.Println("程序等待5秒...")
+								time.Sleep(time.Second * 5)
+								break
 							}
-							windows.CloseHandle(handle)
-							time.NewTicker(5 * time.Second)
-							break
+							fmt.Println("Error getting next process:", err)
+							return
 						}
-					}
 
-					if err = windows.Process32Next(snapshot, &entry); err != nil {
-						if err == syscall.ERROR_NO_MORE_FILES {
-							break
-						}
-						fmt.Println("Error getting next process:", err)
-						return
 					}
-
 				}
 			}
+			defer windows.CloseHandle(snapshot)
 
 		}
-		defer windows.CloseHandle(snapshot)
 
 	}
 
@@ -112,7 +125,6 @@ func main() {
 			fmt.Print("请重新输入游戏路径:")
 			fmt.Scanln(&games_src)
 		} else {
-			// 将 games_src 转换为短路径
 			srcPtr, err := windows.UTF16PtrFromString(games_src)
 			if err == nil {
 				shortPath := make([]uint16, windows.MAX_PATH)
@@ -120,7 +132,6 @@ func main() {
 				if err == nil {
 					games_src = windows.UTF16ToString(shortPath)
 				}
-
 			}
 
 			clearConsole()
@@ -177,7 +188,6 @@ func main() {
 				if err != nil {
 					continue
 				}
-
 				if manifest.Name == "NebulaMultiplayerMod" {
 					mod_version = manifest.VersionNumber
 					mod_dirs = filepath.Join(pluginsPath, dir.Name())
@@ -186,15 +196,16 @@ func main() {
 			}
 		}
 	}
+
 	if mod_version == "" {
 		fmt.Println("未安装mod 直接安装最新的mod")
 	} else {
 		fmt.Println("当前mod版本号:", mod_version)
 		if mod_version == latest_version {
 			fmt.Println("mod已经是最新版本")
-			fmt.Println("请按任意键关闭...")
-			bufio.NewReader(os.Stdin).ReadBytes('\n')
-			return
+			// fmt.Println("请按任意键关闭...")
+			// bufio.NewReader(os.Stdin).ReadBytes('\n')
+			// return
 		} else {
 			fmt.Println("mod不是最新版本,开始安装mod")
 		}
@@ -253,6 +264,7 @@ func main() {
 	}
 
 	fmt.Println("mod安装完成")
+	fmt.Println("当前安装版本:" + latest_version)
 	fmt.Println("请按任意键关闭...")
 	bufio.NewReader(os.Stdin).ReadBytes('\n')
 

@@ -28,17 +28,17 @@ var embeddedZip embed.FS
 func main() {
 	fmt.Println("请加入QQ群:387590770 获取密码")
 
-	for {
-		var password string
-		fmt.Print("请输入密码:")
-		fmt.Scanln(&password)
-		if password == "387590770" {
-			fmt.Println("密码正确")
-			break
-		} else {
-			fmt.Println("密码错误")
-		}
-	}
+	// for {
+	// 	var password string
+	// 	fmt.Print("请输入密码:")
+	// 	fmt.Scanln(&password)
+	// 	if password == "387590770" {
+	// 		fmt.Println("密码正确")
+	// 		break
+	// 	} else {
+	// 		fmt.Println("密码错误")
+	// 	}
+	// }
 
 	var games_src string
 	// 访问 windows 注册表，获取 steam 安装路径
@@ -214,7 +214,7 @@ func main() {
 
 	os.RemoveAll(mod_dirs)
 	// 从 embed.FS 读取 ZIP 文件
-	zipData, err := embeddedZip.ReadFile("Dyson Sphere Program0.32.zip")
+	zipData, err := embeddedZip.ReadFile("Dyson_Sphere_Program0.32.zip")
 	if err != nil {
 		fmt.Println("读取嵌入的 ZIP 文件失败:", err)
 		return

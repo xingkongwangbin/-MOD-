@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -21,7 +22,7 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
-//go:embed Dyson_Sphere_Program.zip
+//go:embed Dyson_Sphere_Program0.32.zip
 var embeddedZip embed.FS
 
 func main() {
@@ -213,7 +214,7 @@ func main() {
 
 	os.RemoveAll(mod_dirs)
 	// 从 embed.FS 读取 ZIP 文件
-	zipData, err := embeddedZip.ReadFile("Dyson_Sphere_Program.zip")
+	zipData, err := embeddedZip.ReadFile("Dyson Sphere Program0.32.zip")
 	if err != nil {
 		fmt.Println("读取嵌入的 ZIP 文件失败:", err)
 		return
@@ -265,6 +266,24 @@ func main() {
 
 	fmt.Println("mod安装完成")
 	fmt.Println("当前安装版本:" + latest_version)
+
+	// 打开广告网页在 8099 端口
+	// 设置 HTML 文件所在的路径
+	fs := http.FileServer(http.Dir("./")) // 假设index.html文件在当前目录
+	http.Handle("/", fs)
+
+	// 启动一个本地HTTP服务器
+	go func() {
+		fmt.Println("Server started at http://localhost:8099")
+		err := http.ListenAndServe(":8099", nil)
+		if err != nil {
+			fmt.Println("Error starting server:", err)
+		}
+	}()
+
+	// 根据不同操作系统打开浏览器
+	openBrowser("http://localhost:8099/index.html")
+
 	fmt.Println("请按任意键关闭...")
 	bufio.NewReader(os.Stdin).ReadBytes('\n')
 
@@ -294,4 +313,27 @@ func clearConsole() {
 	cmd := exec.Command("cmd", "/c", "cls")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
+}
+
+// 打开浏览器的函数
+func openBrowser(url string) {
+	var cmd *exec.Cmd
+
+	// 根据操作系统选择合适的命令打开浏览器
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("cmd", "/c", "start", url)
+	case "linux":
+		cmd = exec.Command("xdg-open", url)
+	case "darwin":
+		cmd = exec.Command("open", url)
+	default:
+		fmt.Println("Unsupported OS")
+		return
+	}
+
+	err := cmd.Start()
+	if err != nil {
+		fmt.Println("Error opening browser:", err)
+	}
 }
